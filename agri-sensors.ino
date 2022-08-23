@@ -16,7 +16,8 @@
  * rather than it constantly reading and producing measurements.
  */
 // Amount of time for each half-blink, in milliseconds
-#define BLINK_TIME 1000
+//#define BLINK_TIME 1000
+String measureReq = "";
 
 #define DHT11_PIN 7
 dht DHT;
@@ -36,25 +37,37 @@ int chk;
 void setup() { Serial.begin(115200); }
 
 void loop() {
-  sensorVal1 = analogRead(sensorPin1);
-  if (sensorVal1 > maxVal1) { maxVal1 = sensorVal1; }
-  if (sensorVal1 < minVal1) { minVal1 = sensorVal1; }
-//  float s1 = (sensorVal1 - minVal1)/(maxVal1 - minVal1);
-  
-  sensorVal2 = analogRead(sensorPin2);
-  if (sensorVal2 > maxVal2) { maxVal2 = sensorVal2; }
-  if (sensorVal2 < minVal2) { minVal2 = sensorVal2; }
-//  float s2 = (sensorVal2 - minVal2)/(maxVal2 - minVal2);
+  if (Serial.available()) {
+    measureReq = Serial.read();
+//    measureReq = Serial.readStringUntil('/n');
 
-  chk = DHT.read11(DHT11_PIN);
-  debug("Temperature:");
-  debug(DHT.temperature);
-  debug(",Humidity:");
-  debug(DHT.humidity);
-  debug(",Photo:");
-  debug(sensorVal1);
-  debug(",Moisture:");
-  debugln(sensorVal2);
-
-  delay(BLINK_TIME);
+    if (measureReq.equals("49")) {      // 49 is the ascii value for '1'
+      sensorVal1 = analogRead(sensorPin1);
+      if (sensorVal1 > maxVal1) { maxVal1 = sensorVal1; }
+      if (sensorVal1 < minVal1) { minVal1 = sensorVal1; }
+//      float s1 = (sensorVal1 - minVal1)/(maxVal1 - minVal1);
+      
+      sensorVal2 = analogRead(sensorPin2);
+      if (sensorVal2 > maxVal2) { maxVal2 = sensorVal2; }
+      if (sensorVal2 < minVal2) { minVal2 = sensorVal2; }
+//      float s2 = (sensorVal2 - minVal2)/(maxVal2 - minVal2);
+    
+      chk = DHT.read11(DHT11_PIN);
+      debug("Temperature:");
+      debug(DHT.temperature);
+      debug(",Humidity:");
+      debug(DHT.humidity);
+      debug(",Photo:");
+      debug(sensorVal1);
+      debug(",Moisture:");
+      debugln(sensorVal2);
+    } else if (measureReq.equals("10")) { // Do nothing, this is a return character
+    } else {
+      debug("Invalid Request: ");
+      debugln(measureReq);
+    }
+  } else {
+//    debugln("Waiting...");
+  }
+//  delay(BLINK_TIME);
 }
