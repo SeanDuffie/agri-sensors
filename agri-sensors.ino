@@ -22,15 +22,15 @@ String measureReq = "";
 #define DHT11_PIN 7
 dht DHT;
 
-int sensorPin1 = A0;
-float sensorVal1 = 0;
-float maxVal1 = 0;
-float minVal1 = 1023;
+int LIGHT_PIN = A0; // LIGHT SENSOR
+float LIGHT_VAL = 0;
+float LIGHT_MAX = 0;
+float LIGHT_MIN = 1023;
 
-int sensorPin2 = A1;
-float sensorVal2 = 0;
-float maxVal2 = 0;
-float minVal2 = 1023;
+int SOIL_PIN = A1; // SOIL SENSOR
+float SOIL_VAL = 0;
+float SOIL_MAX = 0;
+float SOIL_MIN = 1023;
 
 int chk;
 
@@ -39,28 +39,26 @@ void setup() { Serial.begin(115200); }
 void loop() {
   if (Serial.available()) {
     measureReq = Serial.read();
-//    measureReq = Serial.readStringUntil('/n');
-
     if (measureReq.equals("49")) {      // 49 is the ascii value for '1'
-      sensorVal1 = analogRead(sensorPin1);
-      if (sensorVal1 > maxVal1) { maxVal1 = sensorVal1; }
-      if (sensorVal1 < minVal1) { minVal1 = sensorVal1; }
-//      float s1 = (sensorVal1 - minVal1)/(maxVal1 - minVal1);
-      
-      sensorVal2 = analogRead(sensorPin2);
-      if (sensorVal2 > maxVal2) { maxVal2 = sensorVal2; }
-      if (sensorVal2 < minVal2) { minVal2 = sensorVal2; }
-//      float s2 = (sensorVal2 - minVal2)/(maxVal2 - minVal2);
+
+      LIGHT_VAL = analogRead(LIGHT_PIN);
+      if (LIGHT_VAL > LIGHT_MAX) { LIGHT_MAX = LIGHT_VAL; }
+      if (LIGHT_VAL < LIGHT_MIN) { LIGHT_MIN = LIGHT_VAL; }
+//      float W_LIGHT = (LIGHT_VAL - LIGHT_MIN)/(LIGHT_MAX - LIGHT_MIN);
+
+      SOIL_VAL = analogRead(SOIL_PIN);
+      if (SOIL_VAL > SOIL_MAX) { SOIL_MAX = SOIL_VAL; }
+      if (SOIL_VAL < SOIL_MIN) { SOIL_MIN = SOIL_VAL; }
+//      float W_SOIL = (SOIL_VAL - SOIL_MIN)/(SOIL_MAX - SOIL_MIN);
     
       chk = DHT.read11(DHT11_PIN);
-      debug("Temperature:");
+      debug(LIGHT_VAL);
+      debug(",");
+      debug(SOIL_VAL);
+      debug(",");
       debug(DHT.temperature);
-      debug(",Humidity:");
+      debug(",");
       debug(DHT.humidity);
-      debug(",Photo:");
-      debug(sensorVal1);
-      debug(",Moisture:");
-      debugln(sensorVal2);
     } else if (measureReq.equals("10")) { // Do nothing, this is a return character
     } else {
       debug("Invalid Request: ");
