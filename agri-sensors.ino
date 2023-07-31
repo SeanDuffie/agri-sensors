@@ -3,9 +3,7 @@
 #define DHT11_PIN 7
 dht DHT;
 #define LIGHT_PIN A0 // LIGHT SENSOR
-float LIGHT_VAL = 0;
 #define SOIL_PIN A1 // SOIL SENSOR
-float SOIL_VAL = 0;
 #define SPEAKER 2     // SPEAKER OUTPUT
 #define WATER_PUMP 4  // WATER PUMP OUTPUT
 
@@ -25,50 +23,42 @@ void setup() {
 }
 
 void loop() {
-  if (Serial.available()) {
-    String measureReq = "";
-    measureReq = Serial.read();
-    if (measureReq.equals("49")) {      // 49 is the ascii value for '1'
-      LIGHT_VAL = analogRead(LIGHT_PIN);
-      SOIL_VAL = analogRead(SOIL_PIN);
-    
-      int chk = DHT.read11(DHT11_PIN);
-      debug(LIGHT_VAL);
-      debug(",");
-      debug(SOIL_VAL);
-      debug(",");
-      debug(DHT.temperature);
-      debug(",");
-      debug(DHT.humidity); // debugln??
-    } else if (measureReq.equals("50")) {
-      digitalWrite(SPEAKER, HIGH);
-      delay(500);
-      digitalWrite(SPEAKER, LOW);
-      debug(measureReq);
-    } else if (measureReq.equals("51")) {
-      digitalWrite(SPEAKER, HIGH);
-      delay(100);
-      digitalWrite(SPEAKER, LOW);
-      delay(100);
-      digitalWrite(SPEAKER, HIGH);
-      delay(100);
-      digitalWrite(SPEAKER, LOW);
-      digitalWrite(WATER_PUMP, HIGH);
-      debug(measureReq);
-    } else if (measureReq.equals("52")) {
-      digitalWrite(WATER_PUMP, LOW);
-      digitalWrite(SPEAKER, HIGH);
-      delay(100);
-      digitalWrite(SPEAKER, LOW);
-      delay(100);
-      digitalWrite(SPEAKER, HIGH);
-      delay(100);
-      digitalWrite(SPEAKER, LOW);
-      debug(measureReq);
-    } else if (measureReq.equals("10")) { debug(measureReq);  // Do nothing, this is a return character
-    } else {
-//      debug("Invalid Request: ");
-      debug(measureReq);
+    int LIGHT_VAL = analogRead(LIGHT_PIN);
+    int SOIL_VAL = analogRead(SOIL_PIN);
+
+    // int chk = DHT.read11(DHT11_PIN);
+
+    // Debug values
+    debug("Current Light = ");
+    debugln(LIGHT_VAL);
+    // debug(",");
+    debug("Current Soil = ");
+    debugln(SOIL_VAL);
+    // if (chk) {
+    //     // debug(",");
+    //     debug("Current Temp = ");
+    //     debugln(DHT.temperature);
+    //     // debug(",");
+    //     debug("Current Humidity = ");
+    //     debugln(DHT.humidity);
+    // }
+    // debugln();
+
+    // If dry, sound buzzer and activate pump for a time
+    if (SOIL_VAL < 256) {
+        digitalWrite(WATER_PUMP, HIGH);
+        int c = 0;
+        while (c < 3) {
+            digitalWrite(SPEAKER, HIGH);
+            delay(100);
+            digitalWrite(SPEAKER, LOW);
+            delay(100);
+            c++;
+        }
+        delay(4400);
+        digitalWrite(WATER_PUMP, LOW);
     }
-  } else {}
+
+    // Measurement interval
+    delay(5000);
 }
